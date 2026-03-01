@@ -4,6 +4,7 @@
 #define ACCELEROMETER_H
 
 #include "error.h"
+#include "sample.h"
 #include "fixed_type.h"
 
 #include <stdint.h>
@@ -27,7 +28,7 @@
 
 #define ACCEL_LSB_RES       12
 #define ACCEL_RANGE_MG      5000 // +/- 5000mg
-#define ACCEL_S_FIXED_MG_PER_LSB (FIXED_FROM_FLOAT((float)ACCEL_RANGE_MG / (float)(1 << ACCEL_LSB_RES)))
+#define ACCEL_S_FIXED_MG_PER_LSB (FIXED_FROM_FLOAT((float)ACCEL_RANGE_MG / (float)(1 << (ACCEL_LSB_RES - 1))))
 
 #define ACCEL_VALUE_ENDIAN  0 // 0 = little, 1 = big
 
@@ -45,30 +46,14 @@ typedef enum
     ACCEL_Z_AXIS = 2
 } accelerometer_axis_t;
 
-typedef enum
-{
-    ACCEL_VAL_ERROR     = 0,
-    ACCEL_VAL_CONVERTED = 2,
-    ACCEL_VAL_LPF       = 2,
-    ACCEL_VAL_HPF       = 3,
-    ACCEL_VAL_LPF_HPF   = 4
-} accelerometer_value_info_t;
-
-typedef struct 
+typedef struct queue_item
 {
     int16_t x;
     int16_t y;
     int16_t z;
 } accelerometer_sample_t;
 
-typedef struct 
-{
-    fixed_t x;
-    fixed_t y;
-    fixed_t z;
-    fixed_t mag;
-    accelerometer_value_info_t info;
-} accelerometer_sample_mg_t;
+// static uint32_t accelerometer_index = 0;
 
 // Data Handling
 int16_t accelerometer_parse_value(uint8_t l_byte, uint8_t h_byte);
@@ -90,9 +75,6 @@ status_t accelerometer_disable(void);
 // Data Functions
 status_t accelerometer_read_axis_raw(accelerometer_axis_t axis, int16_t * pvalue);
 status_t accelerometer_read_axis(accelerometer_axis_t axis, fixed_t * pvalue);
-status_t accelerometer_read_all(accelerometer_sample_mg_t * psample);
-
-// Mock Functions
-void accelerometer_mock_step(void);
+status_t accelerometer_read_all(sample_t * psample);
 
 #endif

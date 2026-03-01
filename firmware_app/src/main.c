@@ -1,14 +1,13 @@
 // main.c
 
-#include <stdio.h>
+#include "app.h"
 
 
-
-void do_work() {
-    
-}
-
-int main() {
-    printf("Hello, world!\n");
+int main() 
+{
+    while(true) 
+    {
+        app_runner();
+    }
     return 0;
 }

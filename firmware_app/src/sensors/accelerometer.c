@@ -18,29 +18,17 @@ int16_t accelerometer_parse_value(uint8_t l_byte, uint8_t h_byte)
 #endif
 
     value = value & 0x0FFF;
-    if (value & 0x1000)
+    if (value & 0x0800)
     {
-        value |= 0xF000;
+        value -= 0x1000;
     }
     return value;
 }
 
 fixed_t accelerometer_convert_sample_to_mg(int16_t value)
 {
-    fixed_t mg = FIXED_FROM_INT(value) * ACCEL_S_FIXED_MG_PER_LSB;
-    return mg;
+    return fixed_mul(FIXED_FROM_INT(value), ACCEL_S_FIXED_MG_PER_LSB);
 }
-
-fixed_t accelerometer_sample_magnitude(accelerometer_sample_t sample)
-{
-    int32_t xx = (int32_t)sample.x * sample.x;
-    int32_t yy = (int32_t)sample.y * sample.y;
-    int32_t zz = (int32_t)sample.z * sample.z;
-    int32_t mag = sqrt(xx + yy + zz);
-
-    return accelerometer_convert_sample_to_mg(mag);
-}
-
 
 // Register Functions
 status_t accelerometer_write_reg(uint8_t reg, uint8_t value)
@@ -205,7 +193,7 @@ status_t accelerometer_read_axis(accelerometer_axis_t axis, fixed_t * pvalue)
     return status;
 }
 
-status_t accelerometer_read_all(accelerometer_sample_mg_t * psample)
+status_t accelerometer_read_all(sample_t * psample)
 {
     status_t status;
     accelerometer_sample_t raw_sample;
@@ -219,14 +207,5 @@ status_t accelerometer_read_all(accelerometer_sample_mg_t * psample)
     psample->x = accelerometer_convert_sample_to_mg(raw_sample.x);
     psample->y = accelerometer_convert_sample_to_mg(raw_sample.y);
     psample->z = accelerometer_convert_sample_to_mg(raw_sample.z);
-    psample->mag = accelerometer_sample_magnitude(raw_sample);
     return status;
-
-}
-
-
-// Mock Functions
-void accelerometer_mock_step(void)
-{
-    i2c_mock_step();
 }

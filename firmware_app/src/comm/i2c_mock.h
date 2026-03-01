@@ -11,3 +11,4 @@ int i2c_write_reg(uint8_t addr, uint8_t reg, const uint8_t *buf, size_t len);
 // For testing: advances internal "time" and updates sensor data. 
 // Not something you would normally have in real firmware, but here to drive the simulation. 
 void i2c_mock_step(void);
+void i2c_mock_set_xyz(float x, float y, float z);

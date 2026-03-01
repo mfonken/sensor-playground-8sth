@@ -2,6 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Client App (Python)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "client_app/client_app.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Run Firmware App",
             "type": "cppdbg",
             "request": "launch",
@@ -15,6 +22,19 @@
             "preLaunchTask": "Build Firmware App"
         },
         {
+            "name": "Test Firmware App",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/firmware_app/test/build/test_sensor_streamer",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/firmware_app",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "Test Firmware App"
+        },
+        {
             "name": "Test Accelerometer",
             "type": "cppdbg",
             "request": "launch",
@@ -26,6 +46,19 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "Build test_accelerometer"
+        },
+        {
+            "name": "Test Queue",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/firmware_app/test/build/test_circular_queue",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/firmware_app",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "Build test_queue"
         }
     ]
 }
