@@ -59,3 +59,5 @@ dkms.conf
 # Python
 */__pycache__/
 *.pyc
+
+client_app/output/*

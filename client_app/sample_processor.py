@@ -2,6 +2,8 @@ import queue
 import time
 import json
 import threading
+import datetime 
+import os
 
 
 class SampleProcessor:
@@ -11,7 +13,10 @@ class SampleProcessor:
         self.msg_queue = queue.Queue(maxsize=self.max_len)
         self.config = config if config is not None else {}
         if 'save_to_file' in self.config:
+            current_time = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
             self.save_file = self.config['save_to_file']
+            self.save_file_basename, self.save_file_extension = os.path.splitext(os.path.basename(self.save_file))
+            self.save_file = os.path.join(os.path.dirname(self.save_file), f"{self.save_file_basename}_{current_time}{self.save_file_extension}")
             with open(self.save_file, 'w') as f:
                 f.write('')
         if 'graph' in self.config:
