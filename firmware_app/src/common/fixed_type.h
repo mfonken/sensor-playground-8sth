@@ -18,7 +18,7 @@ typedef int32_t fixed_t;
 #define FIXED_TO_INT(f)         ((int32_t)((f) >> FIXED_SHIFT))
 #define FIXED_FROM_FLOAT(f)     ((fixed_t)((f) * FIXED_SCALE + 0.5f))  // round
 #define FIXED_TO_FLOAT(f)       (((float)f) / FIXED_SCALE)
-#define FIXED_DEC_TO_INT(f)     ((int32_t)(((uint32_t)(f) & FIXED_MASK)))
+#define FIXED_DEC_TO_INT(f)     ((int32_t)((((uint64_t)(ABS(f) & FIXED_MASK)) * 10000u) >> FIXED_SHIFT))
 
 static inline fixed_t fixed_mul(fixed_t a, fixed_t b) {
     return (fixed_t)(((int64_t)a * b + (1 << (FIXED_SHIFT - 1))) >> FIXED_SHIFT);

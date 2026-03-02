@@ -53,12 +53,9 @@ typedef struct queue_item
     int16_t z;
 } accelerometer_sample_t;
 
-// static uint32_t accelerometer_index = 0;
-
 // Data Handling
 int16_t accelerometer_parse_value(uint8_t l_byte, uint8_t h_byte);
 fixed_t accelerometer_convert_sample_to_mg(int16_t value);
-fixed_t accelerometer_sample_magnitude(accelerometer_sample_t value);
 
 // Register Functions
 status_t accelerometer_write_reg(uint8_t reg, uint8_t value);

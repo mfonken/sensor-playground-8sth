@@ -9,7 +9,7 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Run Firmware App",
+            "name": "Firmware App (C)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/firmware_app/build/sensor_streamer",
@@ -59,6 +59,31 @@
             "externalConsole": false,
             "MIMode": "lldb",
             "preLaunchTask": "Build test_queue"
-        }
+        },
+        {
+            "name": "Test Sample",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/firmware_app/test/build/test_sample",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/firmware_app",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "Build test_sample"
+        },
+        {
+            "name": "Test Client App",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${workspaceFolder}/client_app/tests",   // path to your test folder
+                "-v"                          // verbose output (optional)
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
     ]
 }

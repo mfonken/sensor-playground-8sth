@@ -2,8 +2,6 @@ import queue
 import time
 import json
 import threading
-import os
-from sensor_sample import SensorSample
 
 
 class SampleProcessor:
@@ -17,12 +15,13 @@ class SampleProcessor:
             with open(self.save_file, 'w') as f:
                 f.write('')
         if 'graph' in self.config:
-            from accelerometer_grapher import AccelerometerGrapher
-            self.grapher = AccelerometerGrapher(max_samples=300, title="IMU Demo — Random Walk")
-            self.grapher.start()
+            from accel_plotter import AccelPlotter
+            self.grapher = AccelPlotter(window_seconds=self.config['graph']['window_seconds'])
+        else:
+            self.grapher = None
 
     def on_sample(self, sample_data):
-        self.msg_queue.put(sample_data)
+        self.msg_queue.put((time.time(), sample_data))
 
     def start(self):
         self.thread = threading.Thread(target=self.process, daemon=True)
@@ -30,20 +29,35 @@ class SampleProcessor:
 
     def sink(self, sample):
         if 'save_to_file' in self.config and self.save_file:
-            with open(self.save_file, 'a') as f:
-                f.write(sample.to_json() + '\n')
-
+            self.sink_file(sample)
         if 'graph' in self.config and self.grapher:
-            self.grapher.add_sample(sample.x, sample.y, sample.z, sample.mag)
-            # self.grapher.update(sample.index, sample.x, sample.y, sample.z, sample.mag)
+            self.sink_graph(sample)
+
+    def sink_file(self, sample):
+        try:
+            with open(self.save_file, 'a') as f:
+                sample_json = json.dumps(sample)
+                f.write(sample_json + '\n')
+        except Exception as e:
+            print(f"Error writing to file: {e}")
+
+    def sink_graph(self, sample):
+        try:
+            self.grapher.add_sample(sample)
+        except Exception as e:
+            print(f"Error adding sample to graph: {e}")
 
     def process(self):
-        sample = SensorSample()
         while True:
             if self.msg_queue.empty():
                 time.sleep(0.01)
 
-            sample_data = self.msg_queue.get()
-            sample.from_json(sample_data)
-            self.sink(sample)
-
+            queue_item = self.msg_queue.get()
+            timestamp, sample_string = queue_item
+            try:
+                sample = json.loads(sample_string)
+                sample['timestamp'] = timestamp
+                self.sink(sample)
+            except Exception as e:
+                print(f"Error processing sample: {e}")
+                

@@ -16,7 +16,11 @@ void tearDown(void)
 
 void* app_runner_thread(void* arg)
 {
-    app_runner();
+    app_init();
+    while(true) 
+    {
+        app_run();
+    }
     return NULL;
 }
 
@@ -29,7 +33,7 @@ void test_app(void)
     for(int i = 0; i < 1000; i++)
     {
         timer_isr();
-        usleep(250000);
+        usleep(100000);
     }
 }
 

@@ -2,6 +2,8 @@
 
 #include "i2c_mock.h"
 #include <stdlib.h>
+#include <math.h>
+
 #include "accelerometer.h"
 
 typedef struct 
@@ -18,7 +20,7 @@ typedef struct
     int16_t z;
     int16_t variance;
     int16_t range;
-    bool random;
+    bool test_signal;
 
     bool enabled;
     bool hpf_enabled;
@@ -39,7 +41,7 @@ static internal_state_t internal_state =
     .z = 0,
     .variance = 100,
     .range = 5000,
-    .random = true,
+    .test_signal = true,
 
     .enabled = false,
     .hpf_enabled = false
@@ -54,7 +56,7 @@ int i2c_read_reg(uint8_t addr, uint8_t reg, uint8_t *buf, size_t len)
         *buf = ACCEL_I_AM;
         break;
     case ACCEL_REG_CTRL:
-        *buf = internal_state.enabled | (1 << 1) | internal_state.hpf_enabled;
+        *buf = (internal_state.enabled & 1) | ((internal_state.hpf_enabled & 2) << 1);
         break;
     case ACCEL_REG_OUT_X_L:
         *buf = internal_state.x_l;
@@ -99,14 +101,25 @@ int i2c_write_reg(uint8_t addr, uint8_t reg, const uint8_t *buf, size_t len)
 // Not something you would normally have in real firmware, but here to drive the simulation. 
 void i2c_mock_step(void)
 {
+    static int step_count = 0;
+    static int amplitude = 100;
+    static float period = 40.0f;
+    static float x_offset = 0.0f;
+    static float y_offset = 0.333f * 2 * M_PI;
+    static float z_offset = 0.666f * 2 * M_PI;
+
     float x_new = internal_state.x;
     float y_new = internal_state.y;
     float z_new = internal_state.z;
-    if (internal_state.random)
+    if (internal_state.test_signal)
     {
-        x_new = internal_state.x + (float)rand() / RAND_MAX * 2 * internal_state.variance - internal_state.variance;
-        y_new = internal_state.y + (float)rand() / RAND_MAX * 2 * internal_state.variance - internal_state.variance;
-        z_new = internal_state.z + (float)rand() / RAND_MAX * 2 * internal_state.variance - internal_state.variance;
+        x_new = amplitude * cosf(2 * M_PI * step_count / period + x_offset);
+        y_new = amplitude * cosf(2 * M_PI * step_count / period + y_offset);
+        z_new = amplitude * cosf(2 * M_PI * step_count / period + z_offset);
+        step_count++;
+        // x_new = internal_state.x + (float)rand() / RAND_MAX * 2 * internal_state.variance - internal_state.variance;
+        // y_new = internal_state.y + (float)rand() / RAND_MAX * 2 * internal_state.variance - internal_state.variance;
+        // z_new = internal_state.z + (float)rand() / RAND_MAX * 2 * internal_state.variance - internal_state.variance;
     }
     // printf("x, y, z: 0x%04x 0x%04x 0x%04x\n", (int16_t)x_new, (int16_t)y_new, (int16_t)z_new);
     int16_t x_new_int = (int16_t)(x_new);
@@ -127,7 +140,7 @@ void i2c_mock_step(void)
 
 void i2c_mock_set_xyz(float x, float y, float z)
 {
-    internal_state.random = false;
+    internal_state.test_signal = false;
     internal_state.x = x;
     internal_state.y = y;
     internal_state.z = z;

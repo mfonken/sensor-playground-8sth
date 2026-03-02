@@ -2,16 +2,16 @@
 #define TCP_MOCK_H
 
 #include <stdint.h>
-#include <pthread.h>
-
 typedef struct {
+    int sock_port;
     int sock_fd;
     int client_fd;
     volatile int connected;
     volatile int initialized;
-    pthread_t thread;
     volatile int running;
 } tcp_state_t;
+
+void tcp_manage_connection(tcp_state_t *state);
 
 // Initialize TCP (called automatically first time)
 int tcp_init(tcp_state_t *state);

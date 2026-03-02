@@ -15,7 +15,7 @@ void tearDown(void)
 
 void test_scale_calc(void) 
 {
-    TEST_ASSERT_EQUAL(ACCEL_S_FIXED_MG_PER_LSB, 2.44140625);
+    TEST_ASSERT_EQUAL(ACCEL_S_FIXED_MG_PER_LSB, FIXED_FROM_FLOAT(2.44140625));
 }
 
 void test_WHO_AM_I_verify(void) 
@@ -128,7 +128,7 @@ void test_accel_read(void)
     // Read all
     i2c_mock_set_xyz(1, 2, -2);
     i2c_mock_step();
-    accelerometer_sample_mg_t sample;
+    sample_t sample;
     status = accelerometer_read_all(&sample);
     TEST_ASSERT_EQUAL(status, STATUS_OK);
     int x_int = FIXED_TO_INT(sample.x);

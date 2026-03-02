@@ -13,9 +13,13 @@
 #define ACCELEROMETER_SAMPLE_RATE_HZ    100
 #define TIMER_TICKS_PER_ACCEL_SAMPLE    (TIMER_RATE_HZ / ACCELEROMETER_SAMPLE_RATE_HZ)
 
+#define APP_RATE_HZ                     (ACCELEROMETER_SAMPLE_RATE_HZ * 2)
+#define APP_RATE_US                     (1000000 / APP_RATE_HZ)
+
 #define IIR_FILTER_MODE                 IIR_FILTER_MODE_LOW_PASS
 #define IIR_FILTER_ALPHA                0.1
 
+#define TCP_CONNECTION_PORT             12345
 
 typedef struct
 {
@@ -23,13 +27,11 @@ typedef struct
     queue_t sample_queue;
     iir_filter_t filter[3];
     tcp_state_t tcp;
-    // TODO: Add socket
 } sensor_playground_app_state_t;
 static sensor_playground_app_state_t state;
 
-void initialize(void);
 void timer_isr(void);
-fixed_t calculate_sample_magnitude(sample_t * psample);
-void app_runner(void);
+void app_init(void);
+void app_run(void);
 
 #endif
