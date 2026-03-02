@@ -268,19 +268,31 @@ Input commands on the python terminal:
 ## Getting Started
 
 ```bash
-# 1. Clone with submodules
-git clone --recurse-submodules https://github.com/<your-org>/<your-repo>.git
-cd <your-repo>
+# 0. Install VS Code with Python and Clang
+https://code.visualstudio.com/download
 
-# 2. Install Python dependencies
+# 1. Clone with submodules
+git clone git@github.com:mfonken/sensor-playground-8sth.git
+cd sensor-playground-8sth/firmware_app/test
+
+# 2. Clone Unity
+git clone https://github.com/ThrowTheSwitch/Unity.git
+git pull
+cd ../..
+
+# 3. Open sensor-playground-8sth in VS Code
+
+# 4. Create python env and install Python dependencies
+CTRL + SHIFT + P
+Python: Select Interpreter
++ Create Virtual Environment...
+Quick Create
+# should start install packages, elsewise use
 pip install -r client_app/requirements.txt
 
-# 3. Open in VS Code
-code .
+# 5. Run `Test Firmware App` in VS Code
 
-# 4. Run `Test Firmware App` in VS Code
-
-# 5. Run `Client App (Python)` in VS Code
+# 6. Run `Client App (Python)` in VS Code
 
 # NOTE: Running `Firmware App (C)` on a mock system will not receive timer_isr triggers and have no data.
 ```
