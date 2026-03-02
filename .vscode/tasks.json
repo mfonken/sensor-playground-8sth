@@ -20,7 +20,7 @@
                 "-I${workspaceFolder}/firmware_app/src/common",
                 "-Wno-attributes",
                 "-o",
-                "${workspaceFolder}/firmware_app/build/sensor_streamer"
+                "${workspaceFolder}/firmware_app/build/firmware_app"
             ],
             "problemMatcher": ["$gcc"],
         },
@@ -46,7 +46,7 @@
                 "-I${workspaceFolder}/firmware_app/src/common",
                 "-Wno-attributes",
                 "-o",
-                "${workspaceFolder}/firmware_app/test/build/test_sensor_streamer"
+                "${workspaceFolder}/firmware_app/test/build/test_firmware_app"
             ],
             "problemMatcher": ["$gcc"],
         },

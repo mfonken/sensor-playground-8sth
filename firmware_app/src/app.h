@@ -17,7 +17,7 @@
 #define APP_RATE_US                     (1000000 / APP_RATE_HZ)
 
 #define IIR_FILTER_MODE                 IIR_FILTER_MODE_LOW_PASS
-#define IIR_FILTER_ALPHA                0.1
+#define IIR_FILTER_ALPHA                (1/8)
 
 #define TCP_CONNECTION_PORT             12345
 

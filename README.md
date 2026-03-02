@@ -17,6 +17,9 @@
   - [Application Overview](#application-overview-1)
   - [Module Descriptions](#module-descriptions)
   - [Python Unit Testing](#python-unit-testing)
+- [Sample Communication Protocol](#sample-communication-protocol)
+- [Data Formats](#data-formats)
+- [Assumptions](#assumptions)
 - [Getting Started](#getting-started)
 - [License](#license)
 
@@ -147,6 +150,8 @@ Breakpoints, watch expressions, and the debug console work as expected for both 
 
 ## Python Client Application (`client_app`) [Python]
 
+![Plot sample](resources/plot_sample.png)
+
 ### Application Overview
 
 The Python client connects to the firmware over TCP, receives a stream of data samples, and can save them to disk and/or display them in a live plot. Threading is used throughout to keep I/O, processing, and rendering decoupled.
@@ -201,8 +206,7 @@ python -m unittest discover -s tests -v
 Python unit tests can also be run and debugged directly from VS Code using the launch configuration defined in `.vscode/launch.json`:
 
 1. Open the **Run and Debug** panel (`Ctrl+Shift+D` / `Cmd+Shift+D`)
-2. Select `Debug Python Unit Tests`
-3. Press **F5**
+2. Select `Test Client App`
 
 This allows breakpoints to be set inside both test code and the modules under test.
 
@@ -213,7 +217,39 @@ This allows breakpoints to be set inside both test code and the modules under te
 | `test_sample_processor.py` | `sample_processor.py` |
 | `test_sample_plotter.py` | `sample_plotter.py` |
 
-_Add or remove rows to match the actual test files in your project._
+---
+## Sample Communication Protocol
+Samples are serialized and communicated as json on the firmware side for easy of use and debugging. 
+#### Structure:
+
+| Field    | Type    |
+|----------|---------|
+| index    | uint32_t |
+| x        | float    |
+| y        | float    |
+| z        | float    |
+| mag      | float    |
+
+Example: `{"index":0, "x":24.4155, "y":-12.9636, "z":-13.2077, "mag":29.8027}`
+
+NOTE: The client app may append values to samples such as `timestamp` before saving.
+
+---
+
+## Data Formats
+| Field    | Type    | Reasoning |
+|----------|---------|-----------|
+| Sensor Raw | `int16_t` | Min represenation of 12b 2s complement |
+| Sensor Scaled [mg] | `Q16.16` | The scaled samples in g or mg of range +/-5000 fit well within `Q16.16` with good decimal precision. `Q16.16` by default, see `firmware_app/src/common/fixed_type.h:FIXED_SHIFT` for configuration|
+| Output Samples | `json` | See above [Sample Communiation Protocol](#sample-communication-protocol)|
+---
+
+## Assumptions
+| Assumption  | Reasoning | Effect    |
+|----------|---------|------|
+| Max 32b Types    | Common for MCUs | Constrained conversions and precision |
+| `netinet/in.h` & `poll.h` are available | For TCP mock | Constrains deployment versatility |
+| User will correctly set endianness | Needs to match real registers (e.g. accelerometer) | User must set `accelerometer.h:ACCEL_VALUE_ENDIAN` (same for other configurations)|
 
 ---
 

@@ -1,0 +1,6 @@
+| Assumption | Value / Rationale |
+|---|---|
+| Word size | 32-bit (matches most ARM Cortex-M targets) |
+| Host endianness | Little-endian (matches the sensor's wire format) with MACRO config |
+| Allocation | All buffers are statically allocated |
+| Sample rate | Accelerometer is read every 4th ISR tick |
