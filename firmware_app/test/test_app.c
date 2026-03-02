@@ -29,11 +29,12 @@ void test_app(void)
     pthread_t thread;
     pthread_create(&thread, NULL, app_runner_thread, NULL);
 
-    usleep(250000);
-    for(int i = 0; i < 1000; i++)
+    int us_delay = 1e6 / TIMER_RATE_HZ;
+    usleep(2500); // Wait for app to start
+    for(int i = 0; i < 1e5; i++)
     {
         timer_isr();
-        usleep(100000);
+        usleep(us_delay);
     }
 }
 

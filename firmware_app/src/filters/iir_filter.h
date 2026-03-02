@@ -3,8 +3,10 @@
 #ifndef IIR_FILTER_H
 #define IIR_FILTER_H
 
+// Dependencies
 #include "fixed_type.h"
 
+// Types
 typedef enum 
 {
     IIR_FILTER_MODE_LOW_PASS,
@@ -13,11 +15,12 @@ typedef enum
 
 typedef struct
 {
-    fixed_t alpha;
-    fixed_t x;
-    fixed_t x_;
+    fixed_t alpha;      /* 0 < alpha < 1 (Q16.16) */
+    fixed_t y_prev;     /* previous output */
+    fixed_t x_prev;     /* previous input (HPF only) */
     iir_filter_mode_t mode;
 } iir_filter_t;
+
 
 // Functions
 void iir_filter_init(iir_filter_t * filter, fixed_t alpha, iir_filter_mode_t mode);

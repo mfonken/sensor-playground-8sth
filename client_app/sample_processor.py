@@ -56,6 +56,10 @@ class SampleProcessor:
             timestamp, sample_string = queue_item
             try:
                 sample = json.loads(sample_string)
+                if 'sample_count' in sample:
+                    print("STATUS:")
+                    print(json.dumps(sample, indent=4))
+                    continue
                 sample['timestamp'] = timestamp
                 self.sink(sample)
             except Exception as e:

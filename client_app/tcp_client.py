@@ -35,7 +35,8 @@ class TCPClient:
         with self.lock:
             if self.sock:
                 try:
-                    self.sock.sendall(message.encode('utf-8'))
+                    data = message.encode('utf-8')
+                    self.sock.sendall(data)
                 except:
                     pass
     

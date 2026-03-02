@@ -3,13 +3,15 @@
 #ifndef ACCELEROMETER_H
 #define ACCELEROMETER_H
 
+// Dependencies
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "error.h"
 #include "sample.h"
 #include "fixed_type.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-
+// Register Definitions
 #define ACCEL_REG_WHO_AM_I  0x00
 #define ACCEL_REG_CTRL      0x01
 #define ACCEL_REG_OUT_X_L   0x10
@@ -26,13 +28,14 @@
 #define ACCEL_I2C_ADDRESS   0x1A
 #define ACCEL_I_AM          0x42
 
+// System Configuration
+#define ACCEL_VALUE_ENDIAN  0 // 0 = little, 1 = big
+
 #define ACCEL_LSB_RES       12
 #define ACCEL_RANGE_MG      5000 // +/- 5000mg
 #define ACCEL_S_FIXED_MG_PER_LSB (FIXED_FROM_FLOAT((float)ACCEL_RANGE_MG / (float)(1 << (ACCEL_LSB_RES - 1))))
 
-#define ACCEL_VALUE_ENDIAN  0 // 0 = little, 1 = big
-
-// Data types
+// Types
 typedef struct
 {
     uint8_t enabled: 1;

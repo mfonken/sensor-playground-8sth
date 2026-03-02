@@ -3,12 +3,17 @@
 #ifndef SAMPLE_H
 #define SAMPLE_H
 
+// Dependencies
 #include <stdio.h>
 #include <stdint.h> 
+
 #include "fixed_type.h"
 
-#define SAMPLE_STR_LEN 100
+// Constants
+#define SAMPLE_TX_STR_LEN 100
+#define MAG_MAX_COMPONENT  26754
 
+// Types
 typedef struct sample
 {
     uint32_t index;
@@ -18,13 +23,15 @@ typedef struct sample
     fixed_t mag;
 } sample_t;
 
-static char sample_str[SAMPLE_STR_LEN] = {0};
+// Data
+static char sample_tx_str[SAMPLE_TX_STR_LEN] = {0};
 
+// Functions
 static char * sample_serialize(sample_t * psample, uint32_t * plen)
 {
     *plen = snprintf(
-        sample_str, 
-        SAMPLE_STR_LEN, 
+        sample_tx_str, 
+        SAMPLE_TX_STR_LEN, 
         "{\"index\":%u, \"x\":%hd.%hu, \"y\":%hd.%hu, \"z\":%hd.%hu, \"mag\":%hu.%hu}\n", 
         psample->index, 
         FIXED_TO_INT(psample->x), 
@@ -39,9 +46,8 @@ static char * sample_serialize(sample_t * psample, uint32_t * plen)
         FIXED_TO_INT(psample->mag), 
         FIXED_DEC_TO_INT(psample->mag));
     
-    return sample_str;
+    return sample_tx_str;
 }
-#define MAG_MAX_COMPONENT  26754
 
 static int32_t isqrt32(int32_t val)
 {

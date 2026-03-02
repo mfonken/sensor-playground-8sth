@@ -273,17 +273,17 @@ socket-reading thread, so the network I/O and plot rendering never block each ot
 ---
 
 ## 8. What I'd Do Next (With More Time)
+
 - **Extend unit testing** — Flush out unit test for [ZOMBIES](https://blog.wingman-sw.com/tdd-guided-by-zombies) 
-  coverage and extend for each file. 
+ for each file. 
+- **Fix VS Code / Matplotlib Key Crash** - Deep in the matplotlib is a crash.
 - **Latency analysis** — instrument the ISR→task→socket path with a free-running 32-bit
   cycle counter to measure worst-case jitter and confirm the
   100 Hz deadline is always met.
-- **Double-buffering** — use two alternating sample arrays so the ISR fills one while the
-  task drains the other, eliminating any possibility of a dropped sample under sustained
-  load.
 - **Power management** — gate the accelerometer between samples using the CTRL ENABLE
   bit and put the MCU into a WFI (Wait For Interrupt) sleep in the idle loop to reduce
   current draw between 100 Hz ticks.
 - **Protocol hardening** — replace newline-delimited JSON with a compact binary framing
   (magic byte + length + CRC8) to reduce wire size and detect corruption, particularly
   important if the transport were UART instead of TCP. Add identity as well.
+- **Clean** - Clean and comment more

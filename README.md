@@ -1,9 +1,7 @@
-# Project Name
-
-> Brief one-line description of what this project does.
+# Sensor Playground - Accelerometer Sampler and Plotter
+> Matthew Fonken | Mar 1, 2026 | 8S FE Take Home
 
 ---
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -18,8 +16,8 @@
   - [Module Descriptions](#module-descriptions)
   - [Python Unit Testing](#python-unit-testing)
 - [Sample Communication Protocol](#sample-communication-protocol)
+- [CLI](#cli)
 - [Data Formats](#data-formats)
-- [Assumptions](#assumptions)
 - [Getting Started](#getting-started)
 - [License](#license)
 
@@ -27,7 +25,7 @@
 
 ## Overview
 
-_This repository aims to visualize sensor (accelerometer) reading in real-time. The firmware app runs a super loop with timer ISR to sample an accelerometer via I2C and send over TCP. Samples are sent to the client app for file logging and/or plotting._
+This repository aims to visualize sensor (accelerometer) reading in real-time. The firmware app runs a super loop with timer ISR to sample an accelerometer via I2C and send over TCP. Samples are sent to the client app for file logging and/or plotting.
 
 ---
 
@@ -66,7 +64,7 @@ project-root/
 
 ### Application Overview
 
-_Describe what the firmware application does at a high level — its purpose, the target hardware/platform, and any key behaviours._
+The firmware samples an sensor (accelerometer) synchronously, formats, filters, serializes and sends over a TCP connection to the client app. 
 
 #### Entry Point: `main` → `app`
 
@@ -233,6 +231,20 @@ Samples are serialized and communicated as json on the firmware side for easy of
 Example: `{"index":0, "x":24.4155, "y":-12.9636, "z":-13.2077, "mag":29.8027}`
 
 NOTE: The client app may append values to samples such as `timestamp` before saving.
+
+---
+
+## CLI
+This app can be controlled by a basic CLI:
+| CMD | Description |
+|-----|-------------|
+|  1  | CONITNUE / START |
+|  2 |  PAUSE / STOP|
+|  3 | Get STATUS |
+
+Input commands on the python terminal: 
+- Press command number
+- Press enter
 
 ---
 

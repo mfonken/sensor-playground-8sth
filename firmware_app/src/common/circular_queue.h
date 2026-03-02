@@ -3,17 +3,16 @@
 #ifndef CIRCULAR_QUEUE_H
 #define CIRCULAR_QUEUE_H
 
+// Dependencies
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "sample.h"
 
-// Queue assumptions: 
-// - Queue size is a power of 2
-// - Cannot enqueue NULL items
-
+// Constants
 #define QUEUE_SIZE (uint8_t)32
 
+// Types
 typedef struct
 {
     sample_t buffer[QUEUE_SIZE];
@@ -23,6 +22,7 @@ typedef struct
     uint8_t count;
 } queue_t;
 
+// Functions
 void queue_init(queue_t * queue);
 sample_t * queue_get_tail_ptr(queue_t * queue);
 void queue_enqueue(queue_t * queue, sample_t item);

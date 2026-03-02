@@ -2,19 +2,26 @@ from tcp_client import TCPClient
 from sample_processor import SampleProcessor
 import time
 import threading
+import sys
+import select
 
 def run_client(callback):
     listener = TCPClient("127.0.0.1", 12345, on_sample_callback=callback)
+    thread = listener.start()
+    thread.start()
+
     while True:
         try:
-            listener.running = False
-            listener.thread = None
-            thread = listener.start()
-            thread.start()
-            thread.join()
+            if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+                char = sys.stdin.read(1)
+                if char:
+                    try:
+                        listener.send(char)
+                    except ValueError:
+                        pass
         except Exception as e:
             print(e)
-        time.sleep(0.1)
+        time.sleep(0.01)
 
 def main():
     config = {

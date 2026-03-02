@@ -104,9 +104,16 @@ void i2c_mock_step(void)
     static int step_count = 0;
     static int amplitude = 100;
     static float period = 40.0f;
+#define ACCEL_SPOOF_IN_PHASE
+#ifdef ACCEL_SPOOF_IN_PHASE
+    static float x_offset = 0.0f;
+    static float y_offset = 0.0f; 
+    static float z_offset = 0.0f;
+#else
     static float x_offset = 0.0f;
     static float y_offset = 0.333f * 2 * M_PI;
     static float z_offset = 0.666f * 2 * M_PI;
+#endif
 
     float x_new = internal_state.x;
     float y_new = internal_state.y;
@@ -121,21 +128,18 @@ void i2c_mock_step(void)
         // y_new = internal_state.y + (float)rand() / RAND_MAX * 2 * internal_state.variance - internal_state.variance;
         // z_new = internal_state.z + (float)rand() / RAND_MAX * 2 * internal_state.variance - internal_state.variance;
     }
-    // printf("x, y, z: 0x%04x 0x%04x 0x%04x\n", (int16_t)x_new, (int16_t)y_new, (int16_t)z_new);
+        
     int16_t x_new_int = (int16_t)(x_new);
     internal_state.x_l = (uint8_t)(x_new_int & 0xFF);
     internal_state.x_h = (uint8_t)((x_new_int >> 8) & 0xFF);
-    // printf("x_l, x_h: 0x%02x 0x%02x\n", internal_state.x_l, internal_state.x_h);
 
     int16_t y_new_int = (int16_t)(y_new);
     internal_state.y_l = (uint8_t)(y_new_int & 0xFF);
     internal_state.y_h = (uint8_t)((y_new_int >> 8) & 0xFF);
-    // printf("y_l, y_h: 0x%02x 0x%02x\n", internal_state.y_l, internal_state.y_h);
 
     int16_t z_new_int = (int16_t)(z_new);
     internal_state.z_l = (uint8_t)(z_new_int & 0xFF);
     internal_state.z_h = (uint8_t)((z_new_int >> 8) & 0xFF);
-    // printf("z_l, z_h: 0x%02x 0x%02x\n", internal_state.z_l, internal_state.z_h);
 }
 
 void i2c_mock_set_xyz(float x, float y, float z)

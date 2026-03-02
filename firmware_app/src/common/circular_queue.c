@@ -24,11 +24,14 @@ void queue_enqueue(queue_t * queue, sample_t item)
     if (queue == NULL) return;
     queue->buffer[queue->tail] = item;
     queue->tail = (queue->tail + 1) % queue->capacity;
-    queue->count++;
 
-    if (queue->count > queue->capacity)
+    if (queue->count < queue->capacity)
     {
-        queue->count = queue->capacity;
+        queue->count++;
+    }
+    else
+    {
+        queue->head = (queue->head + 1) % queue->capacity;
     }
 }
 

@@ -1,29 +1,66 @@
-// iir_filter.c
-
 #include "iir_filter.h"
 
-void iir_filter_init(iir_filter_t * filter, fixed_t alpha, iir_filter_mode_t mode) 
+/* Clamp alpha to [0, 1] */
+static fixed_t clamp_alpha(fixed_t a)
 {
-    filter->alpha = alpha;
-    filter->x = 0;
-    filter->x_ = 0;
-    filter->mode = mode;
+    if (a < 0)
+        return 0;
+
+    if (a > FIXED_ONE)
+        return FIXED_ONE;
+
+    return a;
 }
 
-fixed_t iir_low_pass(iir_filter_t * filter, fixed_t x) 
+
+/* ============================
+   Initialization
+   ============================ */
+void iir_filter_init(iir_filter_t *filter,
+                     fixed_t alpha,
+                     iir_filter_mode_t mode)
 {
-    filter->x = fixed_mul(x, filter->alpha) + fixed_mul(filter->x_, (1 - filter->alpha));
-    return filter->x;
+    filter->alpha  = clamp_alpha(alpha);
+    filter->y_prev = 0;
+    filter->x_prev = 0;
+    filter->mode   = mode;
 }
 
-fixed_t iir_high_pass(iir_filter_t * filter, fixed_t x) 
+/* ============================
+   Low Pass
+   y[n] = α x[n] + (1-α) y[n-1]
+   ============================ */
+fixed_t iir_low_pass(iir_filter_t * filter, fixed_t x)
 {
-    filter->x = fixed_mul(filter->x, filter->alpha) + fixed_mul((x - filter->x_), filter->alpha);
-    filter->x_ = x;
-    return filter->x;
+    fixed_t y = fixed_mul(filter->alpha, x) + fixed_mul(FIXED_ONE - filter->alpha, filter->y_prev);
+    filter->y_prev = y;
+
+    return y;
 }
 
-fixed_t iir_filter_apply(iir_filter_t * filter, fixed_t x)
+
+/* ============================
+   High Pass
+   y[n] = α ( y[n-1] + x[n] - x[n-1] )
+   ============================ */
+
+fixed_t iir_high_pass(iir_filter_t * filter, fixed_t x)
+{
+    fixed_t y = fixed_mul(filter->alpha, 
+                          filter->y_prev + (x - filter->x_prev));
+
+    filter->x_prev = x;
+    filter->y_prev = y;
+
+    return y;
+}
+
+
+/* ============================
+   Apply
+   ============================ */
+
+fixed_t iir_filter_apply(iir_filter_t *filter, fixed_t x)
 {
     if (filter->mode == IIR_FILTER_MODE_LOW_PASS)
         return iir_low_pass(filter, x);

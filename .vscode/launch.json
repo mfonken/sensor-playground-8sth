@@ -6,7 +6,8 @@
             "type": "debugpy",
             "request": "launch",
             "program": "client_app/client_app.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
         {
             "name": "Firmware App (C)",

@@ -109,6 +109,11 @@ class AccelPlotter:
             self.data.append({"dt": dt, "x": sample["x"],
                                "y": sample["y"], "z": sample["z"], "mag": mag})
             self._prune()
+            if len(self.data) > 1 and self.data[-1]["dt"].replace(tzinfo=None).second != self.data[-2]["dt"].replace(tzinfo=None).second:
+                dt1 = self.data[-2]["dt"].replace(tzinfo=None)
+                dt2 = self.data[-1]["dt"].replace(tzinfo=None)
+                update_rate = 1 / (dt2 - dt1).total_seconds()
+                print(f"Update rate: {update_rate:.3f} Hz", flush=True)
 
     def _prune(self):
         if not self.data:

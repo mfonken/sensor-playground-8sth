@@ -88,6 +88,8 @@ status_t accelerometer_read_config(accelerometer_config_t * pconfig)
 // Control Functions
 status_t accelerometer_verify(bool * pvalue)
 {
+    if (pvalue == NULL) 
+        return STATUS_ERROR_NULL_PTR;
     uint8_t value = 0;
     status_t status = accelerometer_read_reg(ACCEL_REG_WHO_AM_I, &value);
     if (status == STATUS_OK)
@@ -99,6 +101,9 @@ status_t accelerometer_verify(bool * pvalue)
 
 status_t accelerometer_is_enabled(bool * pvalue)
 {
+    if (pvalue == NULL) 
+        return STATUS_ERROR_NULL_PTR;
+
     accelerometer_config_t config;
     status_t status = accelerometer_read_config(&config);
     if(status == STATUS_OK)
@@ -110,6 +115,9 @@ status_t accelerometer_is_enabled(bool * pvalue)
 
 status_t accelerometer_is_hpf_enabled(bool * pvalue)
 {
+    if (pvalue == NULL) 
+        return STATUS_ERROR_NULL_PTR;
+        
     accelerometer_config_t config;
     status_t status = accelerometer_read_config(&config);
     if(status == STATUS_OK)
@@ -203,9 +211,9 @@ status_t accelerometer_read_all(sample_t * psample)
     if (status != STATUS_OK) return status;
     status = accelerometer_read_axis_raw(ACCEL_Z_AXIS, &raw_sample.z);
     if (status != STATUS_OK) return status;
-
     psample->x = accelerometer_convert_sample_to_mg(raw_sample.x);
     psample->y = accelerometer_convert_sample_to_mg(raw_sample.y);
     psample->z = accelerometer_convert_sample_to_mg(raw_sample.z);
+        
     return status;
 }
