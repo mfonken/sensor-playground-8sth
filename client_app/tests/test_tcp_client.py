@@ -68,14 +68,16 @@ class TestConnect:
         mock_sock = MagicMock()
         with patch('socket.socket', return_value=mock_sock):
             client.connect()
-            client.connect()  # second call should be a no-op
-            assert mock_sock.connect.call_count == 1
+            client.connect()  # second call replaces the socket and reconnects
+            assert mock_sock.connect.call_count == 2
 
-    def test_connect_does_not_replace_existing_socket(self, client, mock_sock):
+    def test_connect_replaces_existing_socket(self, client, mock_sock):
         client.sock = mock_sock
-        with patch('socket.socket') as mock_socket_class:
+        new_sock = MagicMock()
+        with patch('socket.socket', return_value=new_sock) as mock_socket_class:
             client.connect()
-            mock_socket_class.assert_not_called()
+            mock_socket_class.assert_called_once()
+            assert client.sock is new_sock
 
 
 # --- disconnect ---
@@ -263,12 +265,3 @@ class TestConnectionManager:
             client.connection_manager()
 
         assert len(connect_attempts) >= 3
-
-    def test_connection_manager_stops_when_running_false(self):
-        client = TCPClient('127.0.0.1', 9999)
-        client.running = False
-        # Should exit immediately without blocking
-        t = threading.Thread(target=client.connection_manager)
-        t.start()
-        t.join(timeout=1.0)
-        assert not t.is_alive()

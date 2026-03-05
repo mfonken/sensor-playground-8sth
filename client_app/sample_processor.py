@@ -54,17 +54,17 @@ class SampleProcessor:
 
     def process(self):
         while True:
-            if self.msg_queue.empty():
-                time.sleep(0.01)
-
-            queue_item = self.msg_queue.get()
+            try:
+                queue_item = self.msg_queue.get(timeout=0.01) 
+            except queue.Empty:
+                continue
             timestamp, sample_string = queue_item
             try:
-                sample = json.loads(sample_string)
-                if 'sample_count' in sample:
+                if 'sample_count' in sample_string or '~' in sample_string:
                     print("STATUS:")
-                    print(json.dumps(sample, indent=4))
+                    print(sample_string)
                     continue
+                sample = json.loads(sample_string)
                 sample['timestamp'] = timestamp
                 self.sink(sample)
             except Exception as e:

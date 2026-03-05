@@ -102,14 +102,13 @@ Unit tests are located in `firmware_app/test/` and use the [Unity](https://githu
 
 #### Cloning Unity as a Submodule
 
-When cloning this repository for the first time, initialise and update all submodules to pull in Unity:
+When cloning this repository for the first time, clone and pull in Unity:
 
 ```bash
-# Clone the repo and initialise submodules in one step
-git clone --recurse-submodules https://github.com/<your-org>/<your-repo>.git
+cd sensor-playground-8sth/firmware_app/test
+git clone https://github.com/ThrowTheSwitch/Unity.git
+git pull
 
-# Or, if you have already cloned without submodules
-git submodule update --init --recursive
 ```
 
 Unity will be checked out into `firmware_app/test/Unity/`.

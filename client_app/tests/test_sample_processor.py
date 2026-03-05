@@ -44,7 +44,7 @@ class TestInit:
 
     def test_save_file_created_empty(self, file_config):
         p = SampleProcessor(file_config)
-        with open(file_config['save_to_file']) as f:
+        with open(p.save_file) as f:
             assert f.read() == ''
 
     def test_grapher_none_without_graph_config(self, processor_basic):
@@ -88,14 +88,14 @@ class TestSinkFile:
     def test_writes_json_line(self, processor_with_file, file_config):
         sample = {'x': 1, 'timestamp': 1234567890.0}
         processor_with_file.sink_file(sample)
-        with open(file_config['save_to_file']) as f:
+        with open(processor_with_file.save_file) as f:
             line = f.readline()
         assert json.loads(line) == sample
 
     def test_appends_multiple_samples(self, processor_with_file, file_config):
         for i in range(3):
             processor_with_file.sink_file({'i': i})
-        with open(file_config['save_to_file']) as f:
+        with open(processor_with_file.save_file) as f:
             lines = f.readlines()
         assert len(lines) == 3
 
@@ -157,7 +157,7 @@ class TestProcess:
         processor_with_file.start()
         processor_with_file.on_sample('{"value": 42}')
         time.sleep(0.1)
-        with open(file_config['save_to_file']) as f:
+        with open(processor_with_file.save_file) as f:
             lines = f.readlines()
         assert len(lines) == 1
         data = json.loads(lines[0])
@@ -181,6 +181,6 @@ class TestProcess:
         for i in range(5):
             processor_with_file.on_sample(json.dumps({'i': i}))
         time.sleep(0.2)
-        with open(file_config['save_to_file']) as f:
+        with open(processor_with_file.save_file) as f:
             lines = f.readlines()
         assert len(lines) == 5

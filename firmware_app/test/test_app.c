@@ -16,7 +16,13 @@ void tearDown(void)
 
 void* app_runner_thread(void* arg)
 {
-    app_init();
+    status_t status = app_init();
+    if (status != STATUS_OK) 
+    {
+        printf("Unable to initialize app\n");
+        TEST_FAIL();
+    }
+
     while(true) 
     {
         app_run();

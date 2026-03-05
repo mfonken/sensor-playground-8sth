@@ -24,21 +24,9 @@ void timer_isr(void)
     }
 }
 
-
-static void app_status_to_str(char * str, uint32_t * plen, uint32_t maxlen)
-{
-    *plen = snprintf(
-        str, // Use sample's string
-        maxlen, 
-        "{\"sample_count\":%u, \"error_count\":%u}\n", 
-        state.sample_index,        
-        state.error_counter
-    );
-}
-
 static void app_check_rx(void)
 {
-    char rx;
+    char rx = 0;
     uint32_t status_l;
     char * status_str = sample_tx_str; // Use sample's string
     uint32_t status_str_max_len = SAMPLE_TX_STR_LEN;
@@ -48,15 +36,27 @@ static void app_check_rx(void)
         switch(rx)
         {
             case APP_CMD_START: // '1'
-                printf("Starting app\n");
+                status_str = "~Starting app\n";
+                status_l = strlen(status_str);
+                printf("%s", status_str);
                 state.run_state = APP_STATE_RUNNING;
+                tcp_send(&state.tcp, status_str, status_l);
                 break;
             case APP_CMD_STOP: // '2'
-                printf("Stopping app\n");
+                status_str = "~Stopping app\n";
+                status_l = strlen(status_str);
+                printf("%s", status_str);
                 state.run_state = APP_STATE_STOPPED;
+                tcp_send(&state.tcp, status_str, status_l);
                 break;
             case APP_CMD_STATUS: // '3'
-                app_status_to_str(status_str, &status_l, status_str_max_len);
+                status_l = snprintf(
+                    status_str,
+                    status_str_max_len, 
+                    "{\"sample_count\":%u, \"error_count\":%u}\n", 
+                    state.sample_index,        
+                    state.error_counter
+                );
                 printf("Status: %s\n", status_str);
                 tcp_send(&state.tcp, status_str, status_l);
                 break;
@@ -67,7 +67,7 @@ static void app_check_rx(void)
 }
 
 
-void app_init(void)
+status_t app_init(void)
 {
     // State
     state.run_state = APP_STATE_INIT;
@@ -88,7 +88,8 @@ void app_init(void)
     if (status != STATUS_OK)
     {
         state.error_counter++;
-        return;
+        state.run_state = APP_STATE_STOPPED;
+        return status;
     }
 
     // TCP
@@ -98,22 +99,24 @@ void app_init(void)
     {
         state.error_counter++;
         state.run_state = APP_STATE_STOPPED;
-        return;
+        return status;
     }
     state.run_state = APP_STATE_RUNNING;
+    return STATUS_OK;
 }
 
 void app_do_work(sample_t * pin, sample_t * pout)
 {
-    // Filter and calculate magnitude
-    pout->index = pin->index;
+#ifdef IIR_FILTER_MODE
     pout->x = iir_filter_apply(&state.filter[0], pin->x);
     pout->y = iir_filter_apply(&state.filter[1], pin->y);
     pout->z = iir_filter_apply(&state.filter[2], pin->z);
+#else
+    pout = pin;
+#endif
+    // Filter and calculate magnitude
+    pout->index = pin->index;
     pout->mag = sample_calculate_magnitude(pout);
-
-    // Check for rx from client
-    app_check_rx();
 }
 
 void app_run(void) 
@@ -124,20 +127,20 @@ void app_run(void)
     const char * sample_str;
     
     tcp_manage_connection(&state.tcp);
-    if(state.tcp.connected 
-        && (queue_dequeue(&state.sample_queue, &sample) 
-            || state.run_state == APP_STATE_STOPPED))
+    if(state.tcp.connected)
     {
-#ifdef IIR_FILTER_MODE
-        app_do_work(&sample, &filtered_sample);
-#else
-        filtered_sample = sample;
-#endif
+        // Check for rx from client
+        app_check_rx();
 
-        if (state.run_state != APP_STATE_RUNNING) 
-            return;
-        sample_str = sample_serialize(&filtered_sample, &sample_str_l);
-        tcp_send(&state.tcp, sample_str, sample_str_l);
+        if (queue_dequeue(&state.sample_queue, &sample))
+        {
+            app_do_work(&sample, &filtered_sample);
+
+            if (state.run_state != APP_STATE_RUNNING) 
+                return;
+            sample_str = sample_serialize(&filtered_sample, &sample_str_l);
+            tcp_send(&state.tcp, sample_str, sample_str_l);
+        }
     }
     usleep(APP_RATE_US);
 }

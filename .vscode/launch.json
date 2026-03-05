@@ -7,6 +7,10 @@
             "request": "launch",
             "program": "client_app/client_app.py",
             "console": "integratedTerminal",
+            "env": {
+                "MATPLOTLIB_BACKEND": "Agg",
+                "MPLBACKEND": "Agg"
+            },
             "justMyCode": false
         },
         {
@@ -76,7 +80,7 @@
         },
         {
             "name": "Test Client App",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "pytest",
             "args": [

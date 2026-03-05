@@ -13,13 +13,17 @@ class TCPClient:
         self.sock = None
         self.running = False
         self.thread = None
-        
+        self.last_receive_time = time.time()
+        self.no_receive_timeout_s = 10
+    
     def connect(self):
         """Connect to server"""
         with self.lock:
             if self.sock:
-                return
+                self.sock.close()
+                self.sock = None
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.settimeout(1.0)
             self.sock.connect((self.host, self.port))
             print(f"Connected to {self.host}:{self.port}")
     
@@ -53,6 +57,7 @@ class TCPClient:
                     for sample in data_split:
                         if self.on_sample_callback:
                             self.on_sample_callback(sample)
+                    self.last_receive_time = time.time()
                 except Exception as e:
                     pass
     
@@ -63,10 +68,13 @@ class TCPClient:
                 self.connect()
                 while self.running:
                     self.receive()
+                    if time.time() - self.last_receive_time > self.no_receive_timeout_s:
+                        raise Exception("Connection is stale")
             except Exception as e:
-                print(f"Connection error: {e}")
+                print("Waiting for host to connect to...")
+                # print(f"Connection error: {e}")
                 self.disconnect()
-                time.sleep(0.5)
+                time.sleep(2.0)
     
     def start(self):
         """Start threaded client"""
@@ -88,3 +96,4 @@ class TCPClient:
         self.thread = threading.Thread(target=self.connection_manager, daemon=True)
         self.thread.start()
         return self.thread
+    

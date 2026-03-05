@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use("MacOSX")
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.dates as mdates
@@ -52,6 +55,8 @@ class AccelPlotter:
         self.refresh_interval = 1.0 / refresh_hz
         self.data             = deque()
         self._lock            = threading.Lock()
+        self._rate_window     = deque()   # timestamps for rate calculation
+        self._last_rate_print = 0.0       # wall-clock time of last print
 
         self.fig, self.axes = plt.subplots(
             4, 1, figsize=(11, 8), sharex=True,
@@ -96,6 +101,27 @@ class AccelPlotter:
         self.axes[-1].set_xlabel("Time", color=TEXT_COLOR, labelpad=8)
         plt.setp(self.axes[-1].xaxis.get_majorticklabels(), rotation=0, ha="center")
 
+    def _print_rate(self, now_dt):
+        """Print average sample rate over the past 1 second, once per second."""
+        now_ts = now_dt.timestamp() if hasattr(now_dt, "timestamp") else time.time()
+        self._rate_window.append(now_ts)
+
+        # Drop timestamps older than 1 second
+        cutoff = now_ts - 1.0
+        while self._rate_window and self._rate_window[0] < cutoff:
+            self._rate_window.popleft()
+
+        # Print at most once per second
+        if now_ts - self._last_rate_print >= 1.0:
+            count = len(self._rate_window)
+            if count >= 2:
+                elapsed = self._rate_window[-1] - self._rate_window[0]
+                avg_rate = (count - 1) / elapsed if elapsed > 0 else 0.0
+            else:
+                avg_rate = 0.0
+            print(f"Update rate: {avg_rate:.3f} Hz", flush=True)
+            self._last_rate_print = now_ts
+
     def add_sample(self, sample):
         ts  = sample["timestamp"]
         mag_local = math.sqrt(sample["x"]**2 + sample["y"]**2 + sample["z"]**2)
@@ -109,11 +135,7 @@ class AccelPlotter:
             self.data.append({"dt": dt, "x": sample["x"],
                                "y": sample["y"], "z": sample["z"], "mag": mag})
             self._prune()
-            if len(self.data) > 1 and self.data[-1]["dt"].replace(tzinfo=None).second != self.data[-2]["dt"].replace(tzinfo=None).second:
-                dt1 = self.data[-2]["dt"].replace(tzinfo=None)
-                dt2 = self.data[-1]["dt"].replace(tzinfo=None)
-                update_rate = 1 / (dt2 - dt1).total_seconds()
-                print(f"Update rate: {update_rate:.3f} Hz", flush=True)
+            self._print_rate(dt)
 
     def _prune(self):
         if not self.data:

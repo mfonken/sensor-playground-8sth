@@ -56,7 +56,7 @@ static sensor_playground_app_state_t state;
 
 // Functions
 void timer_isr(void);
-void app_init(void);
+status_t app_init(void);
 void app_do_work(sample_t * pin, sample_t * pout);
 void app_run(void);
 
