@@ -43,7 +43,7 @@ project-root/
 │   │   ├── filters/
 │   │   └── sensors/
 │   └── test/
-│       ├── Unity/              # Unity submodule
+│       ├── Unity/              # Unity testing submodule
 │       └── test_*.c
 ├── client_app/
 │   ├── client_app.py
@@ -51,7 +51,7 @@ project-root/
 │   ├── sample_processor.py
 │   ├── accel_plotter.py
 │   └── tests/
-│       └── test_*.py
+│       └── test_*.py           # Pytest
 ├── .vscode/
 │   ├── launch.json
 │   └── tasks.json

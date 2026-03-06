@@ -8,19 +8,14 @@
 #include "app.h"
 
 
+volatile bool poll_accel = false;
+
 void timer_isr(void) 
 {
     // ACK timer interrupt
     if (state.tmr_ticks++ % TIMER_TICKS_PER_ACCEL_SAMPLE == 0) 
     {
-        i2c_mock_step();
-
-        sample_t * psample = queue_get_tail_ptr(&state.sample_queue);
-        status_t status = accelerometer_read_all(psample);
-        if (status != STATUS_OK) return;
-
-        queue_enqueue(&state.sample_queue, *psample);
-        state.sample_index++;
+        poll_accel = true;
     }
 }
 
@@ -132,12 +127,27 @@ void app_run(void)
         // Check for rx from client
         app_check_rx();
 
-        if (queue_dequeue(&state.sample_queue, &sample))
+        if (state.run_state != APP_STATE_RUNNING) 
+            return;
+    
+        if (poll_accel)
         {
-            app_do_work(&sample, &filtered_sample);
+            poll_accel = false;
+            i2c_mock_step();
 
-            if (state.run_state != APP_STATE_RUNNING) 
-                return;
+            sample_t * psample = queue_get_tail_ptr(&state.sample_queue);
+            status_t status = accelerometer_read_all(psample);
+            if (status != STATUS_OK) return;
+
+        //     queue_enqueue(&state.sample_queue, *psample);
+        //     state.sample_index++;
+        // }
+
+        // // Do work and send on next sample in queue
+        // if (queue_dequeue(&state.sample_queue, &sample))
+        // {
+            app_do_work(psample, &filtered_sample);
+
             sample_str = sample_serialize(&filtered_sample, &sample_str_l);
             tcp_send(&state.tcp, sample_str, sample_str_l);
         }

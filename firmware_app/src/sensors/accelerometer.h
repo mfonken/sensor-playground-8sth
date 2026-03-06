@@ -21,12 +21,14 @@
 #define ACCEL_REG_OUT_Z_L   0x14
 #define ACCEL_REG_OUT_Z_H   0x15
 
+#define ACCEL_I2C_ADDRESS   0x1A
+#define ACCEL_I_AM          0x42
+
+// Derived Constants
 #define ACCEL_VALID_REG(R)  ((R) == ACCEL_REG_WHO_AM_I || (R) == ACCEL_REG_CTRL || ((R) >= ACCEL_REG_OUT_X_L && (R) <= ACCEL_REG_OUT_Z_H))
 #define ACCEL_ERROR         0xFF
 #define ACCEL_COMM_RETRY    ((uint8_t)3)
 
-#define ACCEL_I2C_ADDRESS   0x1A
-#define ACCEL_I_AM          0x42
 
 // System Configuration
 #define ACCEL_VALUE_ENDIAN  0 // 0 = little, 1 = big
@@ -34,6 +36,7 @@
 #define ACCEL_LSB_RES       12
 #define ACCEL_RANGE_MG      5000 // +/- 5000mg
 #define ACCEL_S_FIXED_MG_PER_LSB (FIXED_FROM_FLOAT((float)ACCEL_RANGE_MG / (float)(1 << (ACCEL_LSB_RES - 1))))
+
 
 // Types
 typedef struct
@@ -69,6 +72,8 @@ status_t accelerometer_read_config(accelerometer_config_t * pconfig);
 status_t accelerometer_verify(bool * pvalue);
 status_t accelerometer_is_enabled(bool * pvalue);
 status_t accelerometer_is_hpf_enabled(bool * pvalue);
+
+// Generic Control
 status_t accelerometer_enable(void);
 status_t accelerometer_disable(void);
 

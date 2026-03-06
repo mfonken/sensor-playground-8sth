@@ -25,6 +25,8 @@ void queue_enqueue(queue_t * queue, sample_t item)
     queue->buffer[queue->tail] = item;
     queue->tail = (queue->tail + 1) % queue->capacity;
 
+
+
     if (queue->count < queue->capacity)
     {
         queue->count++;
@@ -44,6 +46,5 @@ bool queue_dequeue(queue_t * queue, sample_t * item)
     }
     *item = queue->buffer[queue->head];
     queue->head = (queue->head + 1) % queue->capacity;
-    queue->count--;
     return true;
 }

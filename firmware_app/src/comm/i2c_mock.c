@@ -102,9 +102,9 @@ int i2c_write_reg(uint8_t addr, uint8_t reg, const uint8_t *buf, size_t len)
 void i2c_mock_step(void)
 {
     static int step_count = 0;
-    static float amplitude = 1000.0f / ((float)ACCEL_RANGE_MG / (float)(1 << (ACCEL_LSB_RES - 1)));
+    static float amplitude = 4500.0f / ((float)ACCEL_RANGE_MG / (float)(1 << (ACCEL_LSB_RES - 1)));
     static float period = 40.0f;
-// #define ACCEL_SPOOF_IN_PHASE
+#define ACCEL_SPOOF_IN_PHASE
 #ifdef ACCEL_SPOOF_IN_PHASE
     static float x_offset = 0.0f;
     static float y_offset = 0.0f; 
